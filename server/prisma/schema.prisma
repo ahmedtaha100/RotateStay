@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  firstName         String
+  lastName          String
+  medicalSchool     String
+  graduationYear    Int
+  phoneNumber       String?
+  profilePhoto      String?
+
+  emailVerified     Boolean   @default(false)
+  schoolIdVerified  Boolean   @default(false)
+  verificationToken String?
+  verificationExpiry DateTime?
+  schoolIdDocument  String?
+
+  bio               String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  listings          Listing[]
+  bookingsAsGuest   Booking[] @relation("GuestBookings")
+  bookingsAsHost    Booking[] @relation("HostBookings")
+  sentMessages      Message[] @relation("SentMessages")
+  receivedMessages  Message[] @relation("ReceivedMessages")
+  reviewsGiven      Review[]  @relation("ReviewsGiven")
+  reviewsReceived   Review[]  @relation("ReviewsReceived")
+  swapRequests      SwapRequest[] @relation("SwapRequester")
+  swapOffers        SwapRequest[] @relation("SwapReceiver")
+}
+
+model Listing {
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+
+  address            String
+  city               String
+  state              String
+  zipCode            String
+  hospitalName       String
+  distanceToHospital Float
+
+  title              String
+  description        String
+  listingType        ListingType
+  roomType           RoomType
+  pricePerMonth      Float?
+
+  availableFrom      DateTime
+  availableTo        DateTime
+  rotationLength     RotationLength
+
+  amenities          String[]
+  photos             String[]
+  maxGuests          Int       @default(1)
+
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  bookings           Booking[]
+  swapRequests       SwapRequest[]
+}
+
+model Booking {
+  id              String    @id @default(cuid())
+  listingId       String
+  listing         Listing   @relation(fields: [listingId], references: [id])
+  guestId         String
+  guest           User      @relation("GuestBookings", fields: [guestId], references: [id])
+  hostId          String
+  host            User      @relation("HostBookings", fields: [hostId], references: [id])
+
+  checkIn         DateTime
+  checkOut        DateTime
+  status          BookingStatus @default(PENDING)
+  totalPrice      Float?
+
+  message         String?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  cancelledAt     DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  messages        Message[]
+  reviews         Review[]
+}
+
+model SwapRequest {
+  id                  String    @id @default(cuid())
+  requesterId         String
+  requester           User      @relation("SwapRequester", fields: [requesterId], references: [id])
+  receiverId          String
+  receiver            User      @relation("SwapReceiver", fields: [receiverId], references: [id])
+
+  requesterListingId  String
+  requesterListing    Listing @relation(fields: [requesterListingId], references: [id])
+
+  startDate           DateTime
+  endDate             DateTime
+  status              SwapStatus @default(PENDING)
+  message             String?
+
+  approvedAt          DateTime?
+  rejectedAt          DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Message {
+  id              String    @id @default(cuid())
+  senderId        String
+  sender          User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId      String
+  receiver        User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  bookingId       String?
+  booking         Booking?  @relation(fields: [bookingId], references: [id])
+
+  content         String
+  isRead          Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  bookingId       String
+  booking         Booking   @relation(fields: [bookingId], references: [id])
+  reviewerId      String
+  reviewer        User      @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewedId      String
+  reviewed        User      @relation("ReviewsReceived", fields: [reviewedId], references: [id])
+
+  rating          Int
+  comment         String
+
+  createdAt       DateTime  @default(now())
+}
+
+enum ListingType {
+  SWAP_ONLY
+  RENT_ONLY
+  SWAP_OR_RENT
+}
+
+enum RoomType {
+  ENTIRE_PLACE
+  PRIVATE_ROOM
+  SHARED_ROOM
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum SwapStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum RotationLength {
+  FOUR_WEEKS
+  SIX_WEEKS
+  EIGHT_WEEKS
+  TWELVE_WEEKS
+}
