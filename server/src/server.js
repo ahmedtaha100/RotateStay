@@ -2,20 +2,18 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-dotenv.config();
+import env from './config/env.js';
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: env.clientUrl,
     credentials: true
   }
 });
@@ -25,7 +23,7 @@ const __dirname = path.dirname(__filename);
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: env.clientUrl,
   credentials: true
 }));
 app.use(morgan('dev'));
@@ -56,7 +54,6 @@ app.use('/api/reviews', reviewRoutes);
 
 new ChatService(io);
 
-const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+httpServer.listen(env.port, () => {
+  console.log(`Server running on port ${env.port}`);
 });

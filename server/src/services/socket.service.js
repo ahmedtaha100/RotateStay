@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import env from '../config/env.js';
 
 const prisma = new PrismaClient();
 
@@ -38,7 +39,7 @@ export class ChatService {
           throw new Error('Authentication failed');
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, env.jwtSecret);
         const user = await prisma.user.findUnique({
           where: { id: decoded.id },
           select: { id: true, firstName: true, lastName: true }

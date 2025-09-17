@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import axios from 'axios';
 
+const requireEduEmail = import.meta.env.VITE_REQUIRE_EDU_EMAIL !== 'false';
+
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -60,7 +62,7 @@ const Login = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition"
-              placeholder="john.doe@medical.edu"
+              placeholder={requireEduEmail ? 'john.doe@medical.edu' : 'john.doe@example.com'}
             />
           </div>
 

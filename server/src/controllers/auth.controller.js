@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 import { sendVerificationEmail } from '../services/email.service.js';
 import { validateEduEmail } from '../utils/validation.js';
+import env from '../config/env.js';
 
 const prisma = new PrismaClient();
 
@@ -55,7 +56,7 @@ export const register = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      env.jwtSecret,
       { expiresIn: '7d' }
     );
 
@@ -90,7 +91,7 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      env.jwtSecret,
       { expiresIn: '7d' }
     );
 

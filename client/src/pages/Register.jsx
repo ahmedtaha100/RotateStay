@@ -3,6 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import axios from 'axios';
 
+const EDU_DOMAINS = ['.edu', '.ac.uk', '.edu.au', '.edu.ca'];
+const requireEduEmail = import.meta.env.VITE_REQUIRE_EDU_EMAIL !== 'false';
+
 const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -27,9 +30,13 @@ const Register = () => {
       return;
     }
 
-    if (!formData.email.includes('.edu')) {
-      setError('Please use a valid .edu email address');
-      return;
+    if (requireEduEmail) {
+      const normalizedEmail = formData.email.toLowerCase().trim();
+      const hasEduDomain = EDU_DOMAINS.some((domain) => normalizedEmail.endsWith(domain));
+      if (!hasEduDomain) {
+        setError('Please use a valid academic email address');
+        return;
+      }
     }
 
     setLoading(true);
@@ -102,7 +109,7 @@ const Register = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Medical School Email (.edu required)
+              Email Address{requireEduEmail ? ' (.edu required)' : ''}
             </label>
             <input
               type="email"
@@ -111,7 +118,7 @@ const Register = () => {
               onChange={handleChange}
               required
               className="w-full px-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition"
-              placeholder="john.doe@medical.edu"
+              placeholder={requireEduEmail ? 'john.doe@medical.edu' : 'john.doe@example.com'}
             />
           </div>
 
