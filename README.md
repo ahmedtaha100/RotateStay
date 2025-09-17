@@ -65,7 +65,9 @@ RotateStay is a platform that helps medical students swap or rent housing during
    cd ../client && npm install
    ```
 
-2. Configure environment variables by copying `server/.env.example` to `.env` and providing real values.
+2. Configure environment variables by copying `server/.env.example` to `.env` and providing real values. If you are just
+   trying the project locally, the backend now falls back to safe development defaults (including a generated JWT secret) so
+   you can get started even if you skip this step.
 
 3. Run database migrations with Prisma once a PostgreSQL database is available:
 
@@ -73,7 +75,11 @@ RotateStay is a platform that helps medical students swap or rent housing during
    npm run migrate
    ```
 
-4. Start the backend and frontend development servers:
+4. (Optional) Toggle academic email requirements. By default development builds allow you to sign up with any email address
+   so you can explore the product quickly. Set `ALLOW_NON_EDU_EMAILS=false` in `server/.env` and
+   `VITE_REQUIRE_EDU_EMAIL=true` in `client/.env` if you want to enforce `.edu` addresses locally.
+
+5. Start the backend and frontend development servers:
 
    ```bash
    # Backend

@@ -8,6 +8,8 @@ import {
   ChatBubbleBottomCenterTextIcon
 } from '@heroicons/react/24/outline';
 
+const requireEduEmail = import.meta.env.VITE_REQUIRE_EDU_EMAIL !== 'false';
+
 const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
@@ -117,8 +119,10 @@ const Landing = () => {
 
 const features = [
   {
-    name: 'Verified Students Only',
-    description: 'All users verified with .edu emails and school IDs for maximum security.',
+    name: requireEduEmail ? 'Verified Students Only' : 'Built for Med Students',
+    description: requireEduEmail
+      ? 'All users verified with .edu emails and school IDs for maximum security.'
+      : 'Academic verification is optional in this environment so you can explore RotateStay instantly.',
     icon: ShieldCheckIcon
   },
   {
@@ -141,7 +145,9 @@ const features = [
 const steps = [
   {
     title: 'Sign Up & Verify',
-    description: 'Create your account with your .edu email and upload your school ID for verification.'
+    description: requireEduEmail
+      ? 'Create your account with your .edu email and upload your school ID for verification.'
+      : 'Create your account in seconds using any email while you try out RotateStay.'
   },
   {
     title: 'List or Search',
