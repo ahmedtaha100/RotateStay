@@ -14,6 +14,7 @@ import Messages from './pages/Messages.jsx';
 import Profile from './pages/Profile.jsx';
 
 import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const queryClient = new QueryClient();
@@ -23,22 +24,25 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-dark-900 text-white">
+          <div className="min-h-screen bg-dark-900 text-white flex flex-col">
             <Navbar />
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/listings" element={<Listings />} />
-                <Route path="/listings/:id" element={<ListingDetail />} />
-                <Route path="/create-listing" element={<CreateListing />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/profile" element={<Profile />} />
-              </Route>
-            </Routes>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/listings" element={<Listings />} />
+                  <Route path="/listings/:id" element={<ListingDetail />} />
+                  <Route path="/create-listing" element={<CreateListing />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/profile" element={<Profile />} />
+                </Route>
+              </Routes>
+            </main>
+            <Footer />
           </div>
         </Router>
       </AuthProvider>
