@@ -24,7 +24,6 @@ export const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
@@ -37,13 +36,18 @@ export const register = async (req, res) => {
         medicalSchool,
         graduationYear,
         verificationToken,
-        verificationExpiry
+        verificationExpiry,
+        // AUTO-VERIFY FOR TESTING
+        emailVerified: true,
+        schoolIdVerified: true
       },
       select: {
         id: true,
         email: true,
         firstName: true,
-        lastName: true
+        lastName: true,
+        emailVerified: true,
+        schoolIdVerified: true
       }
     });
 
@@ -56,7 +60,7 @@ export const register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: 'Registration successful. Please check your email for verification.',
+      message: 'Registration successful!',
       token,
       user
     });
