@@ -5,6 +5,7 @@ server/.env
 client/.env
 server/node_modules
 client/node_modules
+server/uploads
 .vscode
 .DS_Store
 coverage
