@@ -8,42 +8,43 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  firstName         String
-  lastName          String
-  medicalSchool     String
-  graduationYear    Int
-  phoneNumber       String?
-  profilePhoto      String?
+  id             String  @id @default(cuid())
+  email          String  @unique
+  password       String
+  firstName      String
+  lastName       String
+  medicalSchool  String
+  graduationYear Int
+  phoneNumber    String?
+  profilePhoto   String?
 
-  emailVerified     Boolean   @default(false)
-  schoolIdVerified  Boolean   @default(false)
-  verificationToken String?
+  emailVerified      Boolean   @default(false)
+  schoolIdVerified   Boolean   @default(false)
+  verificationToken  String?
   verificationExpiry DateTime?
-  schoolIdDocument  String?
+  schoolIdDocument   String?
 
-  bio               String?
-  isActive          Boolean   @default(true)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  bio       String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  listings          Listing[]
-  bookingsAsGuest   Booking[] @relation("GuestBookings")
-  bookingsAsHost    Booking[] @relation("HostBookings")
-  sentMessages      Message[] @relation("SentMessages")
-  receivedMessages  Message[] @relation("ReceivedMessages")
-  reviewsGiven      Review[]  @relation("ReviewsGiven")
-  reviewsReceived   Review[]  @relation("ReviewsReceived")
-  swapRequests      SwapRequest[] @relation("SwapRequester")
-  swapOffers        SwapRequest[] @relation("SwapReceiver")
+  listings        Listing[]
+  bookingsAsGuest Booking[]      @relation("GuestBookings")
+  bookingsAsHost  Booking[]      @relation("HostBookings")
+  sentMessages    Message[]      @relation("SentMessages")
+  conversations   Conversation[] @relation("UserConversations")
+  reviewsGiven    Review[]       @relation("ReviewsGiven")
+  reviewsReceived Review[]       @relation("ReviewsReceived")
+  notifications   Notification[]
+  swapRequests    SwapRequest[]  @relation("SwapRequester")
+  swapOffers      SwapRequest[]  @relation("SwapReceiver")
 }
 
 model Listing {
-  id                 String    @id @default(cuid())
-  userId             String
-  user               User      @relation(fields: [userId], references: [id])
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   address            String
   city               String
@@ -52,105 +53,146 @@ model Listing {
   hospitalName       String
   distanceToHospital Float
 
-  title              String
-  description        String
-  listingType        ListingType
-  roomType           RoomType
-  pricePerMonth      Float?
+  title         String
+  description   String
+  listingType   ListingType
+  roomType      RoomType
+  pricePerMonth Float?
 
-  availableFrom      DateTime
-  availableTo        DateTime
-  rotationLength     RotationLength
+  availableFrom  DateTime
+  availableTo    DateTime
+  rotationLength RotationLength
 
-  amenities          String[]
-  photos             String[]
-  maxGuests          Int       @default(1)
+  amenities String[]
+  photos    String[]
+  maxGuests Int      @default(1)
 
-  isActive           Boolean   @default(true)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  bookings           Booking[]
-  swapRequests       SwapRequest[]
+  bookings     Booking[]
+  swapRequests SwapRequest[]
 }
 
 model Booking {
-  id              String    @id @default(cuid())
-  listingId       String
-  listing         Listing   @relation(fields: [listingId], references: [id])
-  guestId         String
-  guest           User      @relation("GuestBookings", fields: [guestId], references: [id])
-  hostId          String
-  host            User      @relation("HostBookings", fields: [hostId], references: [id])
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+  guestId   String
+  guest     User    @relation("GuestBookings", fields: [guestId], references: [id])
+  hostId    String
+  host      User    @relation("HostBookings", fields: [hostId], references: [id])
 
-  checkIn         DateTime
-  checkOut        DateTime
-  status          BookingStatus @default(PENDING)
-  totalPrice      Float?
+  checkIn    DateTime
+  checkOut   DateTime
+  status     BookingStatus @default(PENDING)
+  totalPrice Float?
 
-  message         String?
-  approvedAt      DateTime?
-  rejectedAt      DateTime?
-  cancelledAt     DateTime?
+  message     String?
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+  cancelledAt DateTime?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  messages        Message[]
-  reviews         Review[]
+  review Review?
 }
 
 model SwapRequest {
-  id                  String    @id @default(cuid())
-  requesterId         String
-  requester           User      @relation("SwapRequester", fields: [requesterId], references: [id])
-  receiverId          String
-  receiver            User      @relation("SwapReceiver", fields: [receiverId], references: [id])
+  id          String @id @default(cuid())
+  requesterId String
+  requester   User   @relation("SwapRequester", fields: [requesterId], references: [id])
+  receiverId  String
+  receiver    User   @relation("SwapReceiver", fields: [receiverId], references: [id])
 
-  requesterListingId  String
-  requesterListing    Listing @relation(fields: [requesterListingId], references: [id])
+  requesterListingId String
+  requesterListing   Listing @relation(fields: [requesterListingId], references: [id])
 
-  startDate           DateTime
-  endDate             DateTime
-  status              SwapStatus @default(PENDING)
-  message             String?
+  startDate DateTime
+  endDate   DateTime
+  status    SwapStatus @default(PENDING)
+  message   String?
 
-  approvedAt          DateTime?
-  rejectedAt          DateTime?
+  approvedAt DateTime?
+  rejectedAt DateTime?
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  participants  User[]    @relation("UserConversations")
+  messages      Message[]
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([lastMessageAt])
 }
 
 model Message {
-  id              String    @id @default(cuid())
-  senderId        String
-  sender          User      @relation("SentMessages", fields: [senderId], references: [id])
-  receiverId      String
-  receiver        User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id])
+  content        String       @db.Text
+  fileUrl        String?
+  fileType       String?
+  fileName       String?
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  editedAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
 
-  bookingId       String?
-  booking         Booking?  @relation(fields: [bookingId], references: [id])
-
-  content         String
-  isRead          Boolean   @default(false)
-
-  createdAt       DateTime  @default(now())
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
 
 model Review {
-  id              String    @id @default(cuid())
-  bookingId       String
-  booking         Booking   @relation(fields: [bookingId], references: [id])
-  reviewerId      String
-  reviewer        User      @relation("ReviewsGiven", fields: [reviewerId], references: [id])
-  reviewedId      String
-  reviewed        User      @relation("ReviewsReceived", fields: [reviewedId], references: [id])
+  id                  String    @id @default(cuid())
+  bookingId           String    @unique
+  booking             Booking   @relation(fields: [bookingId], references: [id])
+  reviewerId          String
+  reviewer            User      @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewedId          String
+  reviewed            User      @relation("ReviewsReceived", fields: [reviewedId], references: [id])
+  cleanlinessRating   Int
+  communicationRating Int
+  checkInRating       Int
+  accuracyRating      Int
+  locationRating      Int
+  valueRating         Int
+  overallRating       Float
+  comment             String    @db.Text
+  photos              String[]
+  responseText        String?   @db.Text
+  responseDate        DateTime?
+  isPublic            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  rating          Int
-  comment         String
+  @@index([reviewedId, createdAt])
+  @@index([reviewerId])
+}
 
-  createdAt       DateTime  @default(now())
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  content   String
+  link      String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
 }
 
 enum ListingType {
@@ -186,4 +228,13 @@ enum RotationLength {
   SIX_WEEKS
   EIGHT_WEEKS
   TWELVE_WEEKS
+}
+
+enum NotificationType {
+  MESSAGE
+  BOOKING_REQUEST
+  BOOKING_APPROVED
+  BOOKING_REJECTED
+  REVIEW_RECEIVED
+  REVIEW_REMINDER
 }
